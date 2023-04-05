@@ -63,9 +63,9 @@ func New(key interface{}) (j *JWK, err error) {
 
 	// we do json marshal followed by unmarshal so we can create our own instance of JWK that fits the structure we are looking for
 
-	switch key.(type) {
+	switch k := key.(type) {
 	case *ecdsa.PrivateKey:
-		j.privkey = key
+		j.privkey = k
 
 		priv := key.(*ecdsa.PrivateKey)
 		j.pubKey = &priv.PublicKey
@@ -84,7 +84,7 @@ func New(key interface{}) (j *JWK, err error) {
 		j.isPublicKey = true
 
 	case *rsa.PrivateKey:
-		j.privkey = key
+		j.privkey = k
 
 		priv := key.(*rsa.PrivateKey)
 		j.pubKey = &priv.PublicKey
@@ -102,7 +102,7 @@ func New(key interface{}) (j *JWK, err error) {
 		j.isPublicKey = true
 
 	case *ecdsa.PublicKey, *rsa.PublicKey:
-		j.pubKey = key
+		j.pubKey = k
 		j.isPublicKey = true
 
 	case ecdsa.PublicKey: // for verification, we need *ecdsa.PublicKey
