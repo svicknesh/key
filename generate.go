@@ -2,6 +2,7 @@ package key
 
 import (
 	"crypto/ecdsa"
+	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/rsa"
@@ -27,6 +28,9 @@ const (
 
 	// ECDSA521 - generate an ECDSA 512 bit key
 	ECDSA521
+
+	// ED25519 - generates an ED25519 256 bit key
+	ED25519
 )
 
 // Generate - generates a new key
@@ -49,6 +53,9 @@ func Generate(keytype KeyType) (j *JWK, err error) {
 
 	case RSA4096:
 		key, err = rsa.GenerateKey(rand.Reader, 4096)
+
+	case ED25519:
+		_, key, err = ed25519.GenerateKey(rand.Reader)
 
 	default:
 		err = errors.New("unsupported key type given for generation")

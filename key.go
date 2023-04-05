@@ -3,12 +3,14 @@ package key
 import (
 	"crypto"
 	"crypto/ecdsa"
+	"crypto/ed25519"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/asn1"
 	"encoding/json"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"math/big"
 
@@ -117,6 +119,37 @@ func New(key interface{}) (j *JWK, err error) {
 
 		j.isPublicKey = true
 
+	case *ed25519.PrivateKey:
+		j.privkey = &k
+
+		priv := key.(*ed25519.PrivateKey)
+		j.pubKey = priv.Public()
+
+		j.isPrivateKey = true
+		j.isPublicKey = true
+
+	case ed25519.PrivateKey:
+
+		priv := key.(ed25519.PrivateKey)
+
+		j.privkey = priv
+		j.pubKey = priv.Public()
+
+		j.isPrivateKey = true
+		j.isPublicKey = true
+
+	case *ed25519.PublicKey:
+		pub := key.(*ed25519.PublicKey)
+		j.pubKey = pub
+
+		j.isPublicKey = true
+
+	case ed25519.PublicKey:
+		pub := key.(ed25519.PublicKey)
+		j.pubKey = pub
+
+		j.isPublicKey = true
+
 	}
 
 	return
@@ -147,6 +180,12 @@ func (j *JWK) Sign(hashed []byte) (signed []byte, err error) {
 
 	case "RSA":
 		signed, err = rsa.SignPKCS1v15(rand.Reader, j.privkey.(*rsa.PrivateKey), crypto.SHA256, hashed)
+
+	case "OKP":
+		signed = ed25519.Sign(j.privkey.(ed25519.PrivateKey), hashed)
+
+	default:
+		err = errors.New("unsupported key type " + j.Kty)
 	}
 
 	if nil != err {
@@ -183,6 +222,14 @@ func (j *JWK) Verify(signed, hashed []byte) (err error) {
 		if nil != err {
 			err = fmt.Errorf("verify: %w", err)
 		}
+
+	case "OKP":
+		if ok := ed25519.Verify(j.pubKey.(ed25519.PublicKey), hashed, signed); !ok {
+			err = errors.New("verify: ED25519 signature verification failed")
+		}
+
+	default:
+		err = errors.New("unsupported key type " + j.Kty)
 	}
 
 	return

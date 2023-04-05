@@ -2,6 +2,7 @@ package key
 
 import (
 	"crypto/ecdsa"
+	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/sha256"
@@ -163,5 +164,83 @@ func TestJWK(t *testing.T) {
 	}
 
 	fmt.Println("\nsignature matches, success")
+
+}
+
+func TestGenED25519(t *testing.T) {
+
+	privJWK, err := Generate(ED25519)
+	if nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	//privJWK.SetKeyID("ed25515-keyid")
+	fmt.Println(privJWK.String())
+
+	privJWK, err = ParseJWK(privJWK.Bytes())
+	if nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fmt.Println(privJWK.String())
+
+	pubJWK, err := ParseJWK(privJWK.PublicKey().Bytes())
+	if nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fmt.Println(pubJWK.String())
+
+	hashed := sha256.Sum256([]byte("hello world"))
+	signed, err := privJWK.Sign(hashed[:])
+	if nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fmt.Println("signed " + hex.EncodeToString(signed))
+	//signed = append(signed, []byte("1")...)
+
+	err = pubJWK.Verify(signed, hashed[:])
+	if nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fmt.Println("verified")
+
+	publicKey, privateKey, _ := ed25519.GenerateKey(rand.Reader)
+
+	jwkPriv, err := jwk.New(privateKey)
+	if nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	jwkPub, err := jwk.New(publicKey)
+	if nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	jwkPrivBytes, _ := json.Marshal(jwkPriv)
+	fmt.Println(string(jwkPrivBytes))
+
+	jwkPubBytes, _ := json.Marshal(jwkPub)
+	fmt.Println(string(jwkPubBytes))
+
+	hashed = sha256.Sum256([]byte("hello world"))
+	signed, err = privJWK.Sign(hashed[:])
+	if nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fmt.Println("signed " + hex.EncodeToString(signed))
+	//signed = append(signed, []byte("1")...)
+
+	err = pubJWK.Verify(signed, hashed[:])
+	if nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fmt.Println("verified")
 
 }

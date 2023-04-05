@@ -12,6 +12,7 @@ Possible key types that can be generated are
 - `ECDSA256` - ECDSA 256 bit
 - `ECDSA384` - ECDSA 384 bit
 - `ECDSA521` - ECDSA 521 bit
+- `ED25519` - ED25519 256 bit
 
 ```go
 privJWK, err := key.Generate(ECDSA256)
