@@ -1,6 +1,8 @@
 # Key
 
-Golang helper library to create JWK keys for signing or verifying hashed data from an `ECDSA` or `RSA` public/private keys
+Golang helper library to create JWK keys for signing or verifying hashed data from an `ED25519`, `ECDSA` or `RSA` public/private keys
+
+It also supports creating shared keys using `Curve25519`.
 
 ## Usage
 
@@ -104,5 +106,48 @@ if nil != err {
     fmt.Println(err)
     os.Exit(1)
 }
+
+```
+
+### Creating Shared Secret using `Curve25519`
+
+```go
+
+// create new public, private key for Curve25519 for self
+aPriv, aPub, err := NewKX()
+if nil != err {
+    fmt.Println(err)
+    os.Exit(1)
+}
+
+fmt.Printf("A Private key (a):\t%x\n", aPriv)
+fmt.Printf("A Public key:\t\t%x\n", aPub)
+
+// create new public, private key for Curve25519 for target
+bPriv, bPub, err := NewKX()
+if nil != err {
+    fmt.Println(err)
+    os.Exit(1)
+}
+
+fmt.Printf("B Private key (b):\t%x\n", bPriv)
+fmt.Printf("B Public key:\t\t%x\n", bPub)
+
+// created shared secret for A
+sharedSecretA, err := SharedSecret(aPriv, bPub)
+if nil != err {
+    fmt.Println(err)
+    os.Exit(1)
+}
+
+// created shared secret for B
+sharedSecretB, err := SharedSecret(bPriv, aPub)
+if nil != err {
+    fmt.Println(err)
+    os.Exit(1)
+}
+
+fmt.Printf("Shared key (A):\t\t%x\n", sharedSecretA)
+fmt.Printf("Shared key (B):\t\t%x\n", sharedSecretB)
 
 ```

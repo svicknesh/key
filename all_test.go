@@ -244,3 +244,40 @@ func TestGenED25519(t *testing.T) {
 	fmt.Println("verified")
 
 }
+
+func TestKeyExchange(t *testing.T) {
+
+	aPriv, aPub, err := NewKX()
+	if nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("A Private key (a):\t%x\n", aPriv)
+	fmt.Printf("A Public key:\t\t%x\n", aPub)
+
+	bPriv, bPub, err := NewKX()
+	if nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("B Private key (b):\t%x\n", bPriv)
+	fmt.Printf("B Public key:\t\t%x\n", bPub)
+
+	sharedSecretA, err := SharedSecret(aPriv, bPub)
+	if nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	sharedSecretB, err := SharedSecret(bPriv, aPub)
+	if nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Shared key (A):\t\t%x\n", sharedSecretA)
+	fmt.Printf("Shared key (B):\t\t%x\n", sharedSecretB)
+
+}
