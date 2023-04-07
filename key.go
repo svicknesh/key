@@ -66,39 +66,44 @@ func New(key interface{}) (j *JWK, err error) {
 	// we do json marshal followed by unmarshal so we can create our own instance of JWK that fits the structure we are looking for
 
 	switch k := key.(type) {
+	case *ed25519.PrivateKey:
+		j.privkey = *k
+		j.pubKey = k.Public()
+
+		j.isPrivateKey = true
+		j.isPublicKey = true
+
+	case ed25519.PrivateKey:
+		j.privkey = k
+		j.pubKey = k.Public()
+
+		j.isPrivateKey = true
+		j.isPublicKey = true
+
 	case *ecdsa.PrivateKey:
 		j.privkey = k
-
-		priv := key.(*ecdsa.PrivateKey)
-		j.pubKey = &priv.PublicKey
+		j.pubKey = k.PublicKey
 
 		j.isPrivateKey = true
 		j.isPublicKey = true
 
 	case ecdsa.PrivateKey:
-
-		priv := key.(ecdsa.PrivateKey)
-
-		j.privkey = &priv
-		j.pubKey = &priv.PublicKey
+		j.privkey = &k
+		j.pubKey = k.PublicKey
 
 		j.isPrivateKey = true
 		j.isPublicKey = true
 
 	case *rsa.PrivateKey:
 		j.privkey = k
-
-		priv := key.(*rsa.PrivateKey)
-		j.pubKey = &priv.PublicKey
+		j.pubKey = k.PublicKey
 
 		j.isPrivateKey = true
 		j.isPublicKey = true
 
 	case rsa.PrivateKey:
-
-		priv := key.(rsa.PrivateKey)
-		j.privkey = &priv
-		j.pubKey = &priv.PublicKey
+		j.privkey = &k
+		j.pubKey = k.PublicKey
 
 		j.isPrivateKey = true
 		j.isPublicKey = true
@@ -108,45 +113,22 @@ func New(key interface{}) (j *JWK, err error) {
 		j.isPublicKey = true
 
 	case ecdsa.PublicKey: // for verification, we need *ecdsa.PublicKey
-		pub := key.(ecdsa.PublicKey)
-		j.pubKey = &pub
+		j.pubKey = k
 
 		j.isPublicKey = true
 
 	case rsa.PublicKey: // for verification, we need *rsa.PublicKey
-		pub := key.(rsa.PublicKey)
-		j.pubKey = &pub
+		j.pubKey = k
 
-		j.isPublicKey = true
-
-	case *ed25519.PrivateKey:
-		j.privkey = &k
-
-		priv := key.(*ed25519.PrivateKey)
-		j.pubKey = priv.Public()
-
-		j.isPrivateKey = true
-		j.isPublicKey = true
-
-	case ed25519.PrivateKey:
-
-		priv := key.(ed25519.PrivateKey)
-
-		j.privkey = priv
-		j.pubKey = priv.Public()
-
-		j.isPrivateKey = true
 		j.isPublicKey = true
 
 	case *ed25519.PublicKey:
-		pub := key.(*ed25519.PublicKey)
-		j.pubKey = pub
+		j.pubKey = k
 
 		j.isPublicKey = true
 
 	case ed25519.PublicKey:
-		pub := key.(ed25519.PublicKey)
-		j.pubKey = pub
+		j.pubKey = k
 
 		j.isPublicKey = true
 
