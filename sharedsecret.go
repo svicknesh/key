@@ -7,7 +7,7 @@ import (
 	"golang.org/x/crypto/curve25519"
 )
 
-func NewKX() (privateKey, publicKey [32]byte, err error) {
+func NewKX() (privateKey [32]byte, err error) {
 
 	priv := make([]byte, 32)
 	_, err = rand.Read(priv)
@@ -19,6 +19,12 @@ func NewKX() (privateKey, publicKey [32]byte, err error) {
 	privateKey = [32]byte(priv)
 	priv = nil
 
+	//curve25519.ScalarBaseMult(&publicKey, &privateKey)
+
+	return
+}
+
+func GetKXPubKey(privateKey [32]byte) (publicKey [32]byte) {
 	curve25519.ScalarBaseMult(&publicKey, &privateKey)
 
 	return

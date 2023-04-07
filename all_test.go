@@ -247,20 +247,24 @@ func TestGenED25519(t *testing.T) {
 
 func TestKeyExchange(t *testing.T) {
 
-	aPriv, aPub, err := NewKX()
+	aPriv, err := NewKX()
 	if nil != err {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+
+	aPub := GetKXPubKey(aPriv)
 
 	fmt.Printf("A Private key (a):\t%x\n", aPriv)
 	fmt.Printf("A Public key:\t\t%x\n", aPub)
 
-	bPriv, bPub, err := NewKX()
+	bPriv, err := NewKX()
 	if nil != err {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+
+	bPub := GetKXPubKey(bPriv)
 
 	fmt.Printf("B Private key (b):\t%x\n", bPriv)
 	fmt.Printf("B Public key:\t\t%x\n", bPub)
