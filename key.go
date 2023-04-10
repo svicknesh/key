@@ -1,276 +1,76 @@
 package key
 
 import (
-	"crypto"
 	"crypto/ecdsa"
 	"crypto/ed25519"
-	"crypto/rand"
 	"crypto/rsa"
-	"crypto/x509"
-	"encoding/asn1"
-	"encoding/json"
-	"encoding/pem"
-	"errors"
+	"encoding/base64"
 	"fmt"
-	"math/big"
 
 	"github.com/lestrrat-go/jwx/jwk"
+	"github.com/svicknesh/key/asym/ec"
+	"github.com/svicknesh/key/asym/ed"
+	"github.com/svicknesh/key/asym/r"
+	"github.com/svicknesh/key/kx/crv"
+	"github.com/svicknesh/key/kx/ecdhc"
+	"github.com/svicknesh/key/shared"
 )
 
-// JWK - RSA & EC keys is in JWK format
-type JWK struct {
-	Kty string `yaml:"kty,omitempty" json:"kty,omitempty"`
-	Crv string `yaml:"crv,omitempty" json:"crv,omitempty"`
-	N   string `yaml:"n,omitempty" json:"n,omitempty"`
-	E   string `yaml:"e,omitempty" json:"e,omitempty"`
-	G   string `yaml:"g,omitempty" json:"g,omitempty"`
-	P   string `yaml:"p,omitempty" json:"p,omitempty"`
-	Q   string `yaml:"q,omitempty" json:"q,omitempty"`
-	X   string `yaml:"x,omitempty" json:"x,omitempty"`
-	Y   string `yaml:"y,omitempty" json:"y,omitempty"`
-	D   string `yaml:"d,omitempty" json:"d,omitempty"`
-	DP  string `yaml:"dp,omitempty" json:"dp,omitempty"`
-	DQ  string `yaml:"dq,omitempty" json:"dq,omitempty"`
-	QI  string `yaml:"qi,omitempty" json:"qi,omitempty"`
-	Kid string `yaml:"kid,omitempty" json:"kid,omitempty"`
+// NewKeyFromBytes - returns new instance of key from given JWK bytes
+func NewKeyFromBytes(jwkBytes []byte) (k shared.Key, err error) {
 
-	// helper variables useful in other parts of this library
-	privkey      interface{}
-	pubKey       interface{}
-	isPrivateKey bool
-	isPublicKey  bool
-}
+	var rkey interface{}
 
-// ecdsasig - ecdsa encoding using ASN.1
-type ecdsasig struct {
-	R, S *big.Int
-}
-
-// New - creates a new instance of JWK from a given public or private key
-func New(key interface{}) (j *JWK, err error) {
-
-	j = new(JWK)
-
-	set, err := jwk.New(key)
-	if nil != err {
-		return nil, fmt.Errorf("new init: %w", err)
+	err = jwk.ParseRawKey(jwkBytes, &rkey)
+	if err != nil {
+		return nil, fmt.Errorf("newkeyfrombytes: %w", err)
 	}
 
-	jwkBytes, err := json.Marshal(set)
-	if nil != err {
-		return nil, fmt.Errorf("new marshal: %w", err)
+	switch rkey.(type) {
+	case ed25519.PrivateKey, ed25519.PublicKey:
+		k, err = ed.New(rkey)
+	case *ecdsa.PrivateKey, *ecdsa.PublicKey:
+		k, err = ec.New(rkey)
+	case *rsa.PrivateKey, *rsa.PublicKey:
+		k, err = r.New(rkey)
 	}
 
-	json.Unmarshal(jwkBytes, j) // if the marshal worked, there won't be an error here
-
-	// we do json marshal followed by unmarshal so we can create our own instance of JWK that fits the structure we are looking for
-
-	switch k := key.(type) {
-	case *ed25519.PrivateKey:
-		j.privkey = *k
-		j.pubKey = k.Public()
-
-		j.isPrivateKey = true
-		j.isPublicKey = true
-
-	case ed25519.PrivateKey:
-		j.privkey = k
-		j.pubKey = k.Public()
-
-		j.isPrivateKey = true
-		j.isPublicKey = true
-
-	case *ecdsa.PrivateKey:
-		j.privkey = k
-		j.pubKey = k.PublicKey
-
-		j.isPrivateKey = true
-		j.isPublicKey = true
-
-	case ecdsa.PrivateKey:
-		j.privkey = &k
-		j.pubKey = k.PublicKey
-
-		j.isPrivateKey = true
-		j.isPublicKey = true
-
-	case *rsa.PrivateKey:
-		j.privkey = k
-		j.pubKey = k.PublicKey
-
-		j.isPrivateKey = true
-		j.isPublicKey = true
-
-	case rsa.PrivateKey:
-		j.privkey = &k
-		j.pubKey = k.PublicKey
-
-		j.isPrivateKey = true
-		j.isPublicKey = true
-
-	case *ecdsa.PublicKey, *rsa.PublicKey:
-		j.pubKey = k
-		j.isPublicKey = true
-
-	case ecdsa.PublicKey: // for verification, we need *ecdsa.PublicKey
-		j.pubKey = k
-
-		j.isPublicKey = true
-
-	case rsa.PublicKey: // for verification, we need *rsa.PublicKey
-		j.pubKey = k
-
-		j.isPublicKey = true
-
-	case *ed25519.PublicKey:
-		j.pubKey = k
-
-		j.isPublicKey = true
-
-	case ed25519.PublicKey:
-		j.pubKey = k
-
-		j.isPublicKey = true
-
+	if err != nil {
+		err = fmt.Errorf("newkeyfrombytes: %w", err)
 	}
 
 	return
 }
 
-// SetKeyID - set a key id for a given key
-func (j *JWK) SetKeyID(kid string) {
-	j.Kid = kid
+// NewKeyFromStr - returns new instance of key from a given JWK string
+func NewKeyFromStr(jwkStr string) (k shared.Key, err error) {
+	return NewKeyFromBytes([]byte(jwkStr))
 }
 
-// Sign - signs the given data using the private key in this JWK instance
-func (j *JWK) Sign(hashed []byte) (signed []byte, err error) {
+// NewKXFromBytes - returns new instance of key exchange from given bytes
+func NewKXFromBytes(kxBytes []byte) (kx shared.KeyExchange, err error) {
 
-	if !j.isPrivateKey {
-		return nil, fmt.Errorf("sign: no private key exist for signing data")
+	// first byte indicates the type of key exchange
+	switch kxBytes[0] {
+	case crv.TypeCrvPriv, crv.TypeCrvPub:
+		kx, err = crv.New(kxBytes)
+	case ecdhc.TypeECDHPriv256, ecdhc.TypeECDHPub256, ecdhc.TypeECDHPriv384, ecdhc.TypeECDHPub384, ecdhc.TypeECDHPriv521, ecdhc.TypeECDHPub521:
+		kx, err = ecdhc.New(kxBytes)
 	}
 
-	switch j.Kty {
-	case "EC":
-
-		var encode ecdsasig
-		encode.R, encode.S, err = ecdsa.Sign(rand.Reader, j.privkey.(*ecdsa.PrivateKey), hashed)
-		if nil != err {
-			return nil, fmt.Errorf("sign: %w", err)
-		}
-
-		signed, err = asn1.Marshal(encode)
-
-	case "RSA":
-		signed, err = rsa.SignPKCS1v15(rand.Reader, j.privkey.(*rsa.PrivateKey), crypto.SHA256, hashed)
-
-	case "OKP":
-		signed = ed25519.Sign(j.privkey.(ed25519.PrivateKey), hashed)
-
-	default:
-		err = errors.New("unsupported key type " + j.Kty)
-	}
-
-	if nil != err {
-		return nil, fmt.Errorf("sign: %w", err)
+	if err != nil {
+		err = fmt.Errorf("newkxfrombytes: %w", err)
 	}
 
 	return
 }
 
-// Verify - verifies the given data using the public key in this JWK instance
-func (j *JWK) Verify(signed, hashed []byte) (err error) {
-
-	if !j.isPublicKey {
-		return fmt.Errorf("verify: no public key exist for verifying data")
+// NewKXFromStr - returns new instance of key exchange from a given string
+func NewKXFromStr(kxStr string) (kx shared.KeyExchange, err error) {
+	kxBytes, err := base64.URLEncoding.DecodeString(kxStr)
+	if err != nil {
+		return nil, fmt.Errorf("newkxfromstr: %w", err)
 	}
 
-	switch j.Kty {
-	case "EC":
-
-		// we found the ECDSA public key
-		var decode ecdsasig
-
-		_, err = asn1.Unmarshal(signed, &decode)
-		if nil != err {
-			return fmt.Errorf("verify: %w", err)
-		}
-
-		if !ecdsa.Verify(j.pubKey.(*ecdsa.PublicKey), hashed, decode.R, decode.S) {
-			err = fmt.Errorf("verify: ECDSA signature verification failed")
-		}
-
-	case "RSA":
-		err = rsa.VerifyPKCS1v15(j.pubKey.(*rsa.PublicKey), crypto.SHA256, hashed, signed)
-		if nil != err {
-			err = fmt.Errorf("verify: %w", err)
-		}
-
-	case "OKP":
-		if ok := ed25519.Verify(j.pubKey.(ed25519.PublicKey), hashed, signed); !ok {
-			err = errors.New("verify: ED25519 signature verification failed")
-		}
-
-	default:
-		err = errors.New("unsupported key type " + j.Kty)
-	}
-
-	return
-}
-
-// Key - returns an `RSA` or `ECDSA` instance of the Key, this will return private key first and if it doesn't exist, only then return the public key
-func (j *JWK) Key() (key interface{}) {
-
-	if j.isPrivateKey {
-		return j.privkey
-	} else {
-		return j.pubKey
-	}
-
-}
-
-// PublicKey - returns a JWK instance of `PublicKey`
-func (j *JWK) PublicKey() (p *JWK) {
-	p, _ = New(j.pubKey) // create a new instance of the JWK publickey
-	return p
-}
-
-// Bytes - returns a JSON encoded byte of the key
-func (j *JWK) Bytes() (bytes []byte) {
-	bytes, _ = json.Marshal(j)
-	return
-}
-
-// String - returns a JSON encoded string of the key
-func (j *JWK) String() (str string) {
-	return string(j.Bytes())
-}
-
-// PEM - returns a PEM encoded string of the key
-func (j *JWK) PEM() (pemBytes []byte) {
-
-	var pemType string
-	var keyBytes []byte
-
-	if j.isPrivateKey {
-
-		switch j.Kty {
-		case "EC":
-			pemType = "EC PRIVATE KEY"
-			keyBytes, _ = x509.MarshalECPrivateKey(j.privkey.(*ecdsa.PrivateKey))
-
-		case "RSA":
-			pemType = "PRIVATE KEY"
-			keyBytes, _ = x509.MarshalPKCS8PrivateKey(j.privkey.(*rsa.PrivateKey))
-		}
-
-	} else {
-		// if it isn't a private key, it's a public key
-		pemType = "PUBLIC KEY"
-		keyBytes, _ = x509.MarshalPKIXPublicKey(j.pubKey)
-	}
-
-	return pem.EncodeToMemory(&pem.Block{
-		Type:  pemType,
-		Bytes: keyBytes,
-	})
+	return NewKXFromBytes(kxBytes)
 }

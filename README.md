@@ -1,153 +1,229 @@
-# Key
+# Golang Key library
 
-Golang helper library to create JWK keys for signing or verifying hashed data from an `ED25519`, `ECDSA` or `RSA` public/private keys
+Golang library to 
+- sign and verify signature using `ED25519`, `ECDSA` or `RSA` public/private keys.
+- creating shared keys using `Curve25519` or `ECDH`.
+- Encode keys to JWK (public/private keys ONLY).
+- Decode JWK to keys (public/private keys ONLY).
 
-It also supports creating shared keys using `Curve25519`.
-
-## Usage
+## Key Usage
 
 ### Generating keys
 
 Possible key types that can be generated are 
-- `RSA2048` - RSA 2048 bit
-- `RSA4096` - RSA 4096 bit
+- `ED25519` - ED25519 256 bit
 - `ECDSA256` - ECDSA 256 bit
 - `ECDSA384` - ECDSA 384 bit
 - `ECDSA521` - ECDSA 521 bit
-- `ED25519` - ED25519 256 bit
+- `RSA2048` - RSA 2048 bit
+- `RSA4096` - RSA 4096 bit
+- `RSA8192` - RSA 8192 bit
 
 ```go
-privJWK, err := key.Generate(ECDSA256)
+// create a new instance of Key
+k, err := GenerateKey(ED25519)
 if nil != err {
     fmt.Println(err)
     os.Exit(1)
 }
-fmt.Println(privJWK.String()) // prints the JWK JSON string of this key
-
-pubJWK := privJWK.PublicKey() // creates an instance of the public key for the generated private key
-
+fmt.Println("JWK:", k)
 ```
 
+### Decode JWK string to key
+
+```go
+// create an instance of Key from an existing JWK string
+k, err := NewKeyFromStr("{\"crv\":\"Ed25519\",\"d\":\"vUjQ3PaX8iqHA0Q58Wf7mN8h-oMgAE_cFQDfi0Sr2Js\",\"kty\":\"OKP\",\"x\":\"etHd2wg1POjqvQZ3yhiwwU2JRwCtcqzYQIOmp7BnnSo\"}")
+if nil != err {
+    fmt.Println(err)
+    os.Exit(1)
+}
+fmt.Println("JWK:", k)
+```
 
 ### Signing hashed data
 
 ```go
-// assume an instance of the private key in JWK instance (`privJWK`) already exists
-hashed := sha256.Sum256([]byte("hello world"))
-signed, err := privJWK.Sign(hashed[:])
+// assume a key instance already exists from generation or decoding a JWK string
+
+// signing data is done over a hash of existing data
+s := sha3.New256()
+s.Write([]byte("hello, "))
+s.Write([]byte("world"))
+
+h := s.Sum(nil)
+
+// k is an instance of Key
+signed, err := k.Sign(h)
 if nil != err {
     fmt.Println(err)
     os.Exit(1)
 }
-fmt.Println(hex.EncodeToString(signed))
-
+fmt.Println(base64.StdEncoding.EncodeToString(signed))
 ```
 
 
 ### Verifying hashed data
 
 ```go
-// assume an instance of the public key in JWK instance (`pubJWK`) already exists
-err = pubJWK.Verify(signed, hashed[:])
-if nil != err {
-    fmt.Println(err)
-    os.Exit(1)
-}
+// assume a key instance already exists from generation or decoding a JWK string
 
-fmt.Println("\nsignature matches, success")
-
-```
-
-
-### Get key instance
-
-Returns an instance of the public or private key
-
-```go
-pemBytes := privJWK.Key()
-```
-
-
-### Generate PEM bytes
-
-```go
-pemBytes := privJWK.PEM()
-
-```
-
-
-### Generate JSON string
-
-```go
-jsonStr := privJWK.String()
-
-```
-
-
-### Reading PEM encoded public/private keys into `JWK` instance
-
-```go
-// assume the public/private key in PEM encoded format already exists. password is given in bytes if needed to decrypt the x509 private key PEM
-privJWK, err := key.ParsePEM(pemBytes, passwdBytes)
-if nil != err {
-    fmt.Println(err)
-    os.Exit(1)
+if k.Verify(signed, h) {
+    fmt.Println("verified data for ED25519")
+} else {
+    fmt.Println("unable to verify data for ED25519")
 }
 
 ```
 
-
-### Reading JWK JSON encoded public/private keys into `JWK` instance
+### Complete example
 
 ```go
-// assume the public/private key in JWK JSON string encoded format already exists
-privJWK, err := key.ParseJWK(pemBytes)
+k, err := GenerateKey(ED25519)
 if nil != err {
     fmt.Println(err)
     os.Exit(1)
 }
+fmt.Println("JWK:", k)
+
+kPub, err := k.PublicKey()
+if nil != err {
+    fmt.Println(err)
+    os.Exit(1)
+}
+//fmt.Println("JWK:", kPub)
+
+k2, err := NewKeyFromStr(kPub.String())
+if nil != err {
+    fmt.Println(err)
+    os.Exit(1)
+}
+fmt.Println("JWK:", k2)
+
+s := sha3.New256()
+s.Write([]byte("hello, "))
+s.Write([]byte("world"))
+
+h := s.Sum(nil)
+
+signed, err := k.Sign(h)
+if nil != err {
+    fmt.Println(err)
+    os.Exit(1)
+}
+fmt.Println(base64.StdEncoding.EncodeToString(signed))
+
+//h = append(h, []byte("abcd")...)
+if k2.Verify(signed, h) {
+    fmt.Println("verified data for ED25519")
+} else {
+    fmt.Println("unable to verify data for ED25519")
+}
+```
+
+## Key Exchange
+
+### Generating keys
+
+Possible key types that can be generated are 
+- `CURVE255519` - ED25519Curve25519 256 bit
+- `ECDH256` - ECDH 256 bit
+- `ECDH384` - ECDH 384 bit
+- `ECDH521` - ECDH 521 bit
+
+```go
+// create a new instance of Key
+a, err := GenerateKeyExchange(CURVE25519)
+if nil != err {
+    fmt.Println(err)
+    os.Exit(1)
+}
+
+fmt.Println("A private key:\t", a)
+fmt.Println("A public key:\t", a.PublicKey())
+```
+
+### Decode key exchange from string
+
+```go
+aStr := "ybAlYu1qLcRoiMZKDfuFy8yUTU2TxXRpoYY4xvCjmUfq"
+
+a, err := NewKXFromStr(aStr)
+if nil != err {
+    fmt.Println(err)
+    os.Exit(1)
+}
+fmt.Println("A private key type: ", a.KeyType())
+fmt.Println("A private key:\t", a)
+fmt.Println("A public key:\t", a.PublicKey())
+```
+
+### Creating shared key
+
+```go
+// for a shared key, we would require A's private key and B's public key
+// both A and B **MUST** be using the same type of key exchange i.e. CURVE25519 or ECDH*
+// assume both have been generated or converted from string
+
+sharedSecretA, err := a.SharedSecret(b.PublicKey())
+if nil != err {
+    fmt.Println(err)
+    os.Exit(1)
+}
+fmt.Println("A shared secret with B:\t", base64.StdEncoding.EncodeToString(sharedSecretA))
+
+sharedSecretB, err := b.SharedSecret(a.PublicKey())
+if nil != err {
+    fmt.Println(err)
+    os.Exit(1)
+}
+fmt.Println("B shared secret with A:\t", base64.StdEncoding.EncodeToString(sharedSecretB))
 
 ```
 
-### Creating Shared Secret using `Curve25519`
+### Complete Code
 
 ```go
+// A
+a, err := GenerateKeyExchange(CURVE25519)
+if nil != err {
+    fmt.Println(err)
+    os.Exit(1)
+}
+//fmt.Println(a)
 
-// create new public, private key for Curve25519 for self
-aPriv, aPub, err := NewKX()
+fmt.Println("A private key:\t", a)
+fmt.Println("A public key:\t", a.PublicKey())
+
+// end A
+
+// B
+b, err := GenerateKeyExchange(CURVE25519)
 if nil != err {
     fmt.Println(err)
     os.Exit(1)
 }
 
-fmt.Printf("A Private key (a):\t%x\n", aPriv)
-fmt.Printf("A Public key:\t\t%x\n", aPub)
+fmt.Println("B private key:\t", b)
+fmt.Println("B public key:\t", b.PublicKey())
 
-// create new public, private key for Curve25519 for target
-bPriv, bPub, err := NewKX()
+// end B
+
+// generate shared key
+sharedSecretA, err := a.SharedSecret(b.PublicKey())
 if nil != err {
     fmt.Println(err)
     os.Exit(1)
 }
+fmt.Println("A shared secret with B:\t", base64.StdEncoding.EncodeToString(sharedSecretA))
 
-fmt.Printf("B Private key (b):\t%x\n", bPriv)
-fmt.Printf("B Public key:\t\t%x\n", bPub)
-
-// created shared secret for A
-sharedSecretA, err := SharedSecret(aPriv, bPub)
+sharedSecretB, err := b.SharedSecret(a.PublicKey())
 if nil != err {
     fmt.Println(err)
     os.Exit(1)
 }
+fmt.Println("B shared secret with A:\t", base64.StdEncoding.EncodeToString(sharedSecretB))
 
-// created shared secret for B
-sharedSecretB, err := SharedSecret(bPriv, aPub)
-if nil != err {
-    fmt.Println(err)
-    os.Exit(1)
-}
-
-fmt.Printf("Shared key (A):\t\t%x\n", sharedSecretA)
-fmt.Printf("Shared key (B):\t\t%x\n", sharedSecretB)
+// end generate shared key
 
 ```
