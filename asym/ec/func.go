@@ -6,7 +6,7 @@ import (
 	"crypto/rand"
 	"fmt"
 
-	"github.com/svicknesh/key/shared"
+	"github.com/svicknesh/key/v2/shared"
 )
 
 // Generate - generates a new RSA public/private key

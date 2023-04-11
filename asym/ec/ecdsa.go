@@ -8,7 +8,7 @@ import (
 	"fmt"
 
 	"github.com/lestrrat-go/jwx/v2/jwk"
-	"github.com/svicknesh/key/shared"
+	"github.com/svicknesh/key/v2/shared"
 )
 
 type K struct {

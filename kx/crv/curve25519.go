@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/svicknesh/key/shared"
+	"github.com/svicknesh/key/v2/shared"
 	"golang.org/x/crypto/curve25519"
 )
 

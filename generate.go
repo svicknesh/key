@@ -4,12 +4,12 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/svicknesh/key/asym/ec"
-	"github.com/svicknesh/key/asym/ed"
-	"github.com/svicknesh/key/asym/r"
-	"github.com/svicknesh/key/kx/crv"
-	"github.com/svicknesh/key/kx/ecdhc"
-	"github.com/svicknesh/key/shared"
+	"github.com/svicknesh/key/v2/asym/ec"
+	"github.com/svicknesh/key/v2/asym/ed"
+	"github.com/svicknesh/key/v2/asym/r"
+	"github.com/svicknesh/key/v2/kx/crv"
+	"github.com/svicknesh/key/v2/kx/ecdhc"
+	"github.com/svicknesh/key/v2/shared"
 )
 
 const (

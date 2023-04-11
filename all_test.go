@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/svicknesh/key/shared"
+	"github.com/svicknesh/key/v2/shared"
 	"golang.org/x/crypto/sha3"
 )
 
