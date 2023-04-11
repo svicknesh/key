@@ -1,4 +1,4 @@
-module github.com/svicknesh/key
+module github.com/svicknesh/key/v2
 
 go 1.20
 
