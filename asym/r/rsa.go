@@ -120,3 +120,8 @@ func (k *K) Verify(signed []byte, hashed []byte) (ok bool) {
 
 	return
 }
+
+// MarshalJSON - marshals this Key into a JSON
+func (k K) MarshalJSON() (bytes []byte, err error) {
+	return k.Bytes()
+}

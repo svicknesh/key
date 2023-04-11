@@ -12,4 +12,5 @@ type Key interface {
 	KeyType() (kt KeyType)
 	Sign(hashed []byte) (signed []byte, err error)
 	Verify(signed []byte, hashed []byte) (ok bool)
+	MarshalJSON() (bytes []byte, err error)
 }

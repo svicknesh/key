@@ -2,6 +2,7 @@ package key
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"os"
 	"testing"
@@ -512,4 +513,43 @@ func TestKXECDHStr(t *testing.T) {
 
 	// end generate shared key
 
+}
+
+func TestED25519JSON(t *testing.T) {
+
+	k, err := NewKeyFromStr("{\"crv\":\"Ed25519\",\"d\":\"vUjQ3PaX8iqHA0Q58Wf7mN8h-oMgAE_cFQDfi0Sr2Js\",\"kty\":\"OKP\",\"x\":\"etHd2wg1POjqvQZ3yhiwwU2JRwCtcqzYQIOmp7BnnSo\"}")
+	if nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fmt.Println("JWK:", k)
+
+	kb, err := json.Marshal(k)
+	if nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fmt.Println("JWK string:", string(kb))
+
+}
+
+func TestKXCurve25519JSON(t *testing.T) {
+
+	aStr := "ybAlYu1qLcRoiMZKDfuFy8yUTU2TxXRpoYY4xvCjmUfq"
+
+	a, err := NewKXFromStr(aStr)
+	if nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	//fmt.Println("A private key type: ", a.KeyType())
+	//fmt.Println("A private key:\t", a)
+	//fmt.Println("A public key:\t", a.PublicKey())
+
+	aBytes, err := json.Marshal(a)
+	if nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fmt.Println("KX:", string(aBytes))
 }

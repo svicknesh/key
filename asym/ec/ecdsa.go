@@ -111,3 +111,8 @@ func (k *K) Verify(signed []byte, hashed []byte) (ok bool) {
 
 	return ecdsa.VerifyASN1(k.pub, hashed, signed)
 }
+
+// MarshalJSON - marshals this Key into a JSON
+func (k K) MarshalJSON() (bytes []byte, err error) {
+	return k.Bytes()
+}
