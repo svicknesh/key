@@ -5,9 +5,10 @@ import (
 	"crypto/ed25519"
 	"crypto/rsa"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 
-	"github.com/lestrrat-go/jwx/jwk"
+	"github.com/lestrrat-go/jwx/v2/jwk"
 	"github.com/svicknesh/key/v2/asym/ec"
 	"github.com/svicknesh/key/v2/asym/ed"
 	"github.com/svicknesh/key/v2/asym/r"
@@ -45,6 +46,27 @@ func NewKeyFromBytes(jwkBytes []byte) (k shared.Key, err error) {
 // NewKeyFromStr - returns new instance of key from a given JWK string
 func NewKeyFromStr(jwkStr string) (k shared.Key, err error) {
 	return NewKeyFromBytes([]byte(jwkStr))
+}
+
+// NewFromRawKey - returns new instance of key from given raw key
+func NewFromRawKey(rawKey interface{}) (k shared.Key, err error) {
+
+	jk, err := jwk.FromRaw(rawKey)
+	if nil != err {
+		return nil, fmt.Errorf("newfromrawkey: error converting from raw -> %w", err)
+	}
+
+	bytes, err := json.Marshal(jk)
+	if nil != err {
+		return nil, fmt.Errorf("newfromrawkey: error marshaling -> %w", err)
+	}
+
+	k, err = NewKeyFromBytes(bytes)
+	if nil != err {
+		return nil, fmt.Errorf("newfromrawkey: %w", err)
+	}
+
+	return
 }
 
 // NewKXFromBytes - returns new instance of key exchange from given bytes

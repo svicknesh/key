@@ -553,3 +553,23 @@ func TestKXCurve25519JSON(t *testing.T) {
 	}
 	fmt.Println("KX:", string(aBytes))
 }
+
+/*
+func TestRawKey(t *testing.T) {
+
+	rawKey, err := ec.Generate(shared.ECDSA256)
+	if nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fmt.Println(rawKey.KeyType())
+
+	k, err := NewFromRawKey(rawKey.PrivateKeyInstance())
+	if nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fmt.Println(k.KeyType())
+
+}
+*/
