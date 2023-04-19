@@ -17,8 +17,14 @@ import (
 	"github.com/svicknesh/key/v2/shared"
 )
 
+// Key - alias of `shared.Key`
+type Key = shared.Key // create an alias so users don't need to understand the layout of the library to use this type
+
+// Key - alias of `shared.KeyExchange`
+type KeyExchange = shared.KeyExchange
+
 // NewKeyFromBytes - returns new instance of key from given JWK bytes
-func NewKeyFromBytes(jwkBytes []byte) (k shared.Key, err error) {
+func NewKeyFromBytes(jwkBytes []byte) (k Key, err error) {
 
 	var rkey interface{}
 
@@ -44,12 +50,12 @@ func NewKeyFromBytes(jwkBytes []byte) (k shared.Key, err error) {
 }
 
 // NewKeyFromStr - returns new instance of key from a given JWK string
-func NewKeyFromStr(jwkStr string) (k shared.Key, err error) {
+func NewKeyFromStr(jwkStr string) (k Key, err error) {
 	return NewKeyFromBytes([]byte(jwkStr))
 }
 
 // NewFromRawKey - returns new instance of key from given raw key
-func NewFromRawKey(rawKey interface{}) (k shared.Key, err error) {
+func NewFromRawKey(rawKey interface{}) (k Key, err error) {
 
 	jk, err := jwk.FromRaw(rawKey)
 	if nil != err {
@@ -70,7 +76,7 @@ func NewFromRawKey(rawKey interface{}) (k shared.Key, err error) {
 }
 
 // NewKXFromBytes - returns new instance of key exchange from given bytes
-func NewKXFromBytes(kxBytes []byte) (kx shared.KeyExchange, err error) {
+func NewKXFromBytes(kxBytes []byte) (kx KeyExchange, err error) {
 
 	// first byte indicates the type of key exchange
 	switch kxBytes[0] {
@@ -88,7 +94,7 @@ func NewKXFromBytes(kxBytes []byte) (kx shared.KeyExchange, err error) {
 }
 
 // NewKXFromStr - returns new instance of key exchange from a given string
-func NewKXFromStr(kxStr string) (kx shared.KeyExchange, err error) {
+func NewKXFromStr(kxStr string) (kx KeyExchange, err error) {
 	kxBytes, err := base64.URLEncoding.DecodeString(kxStr)
 	if err != nil {
 		return nil, fmt.Errorf("newkxfromstr: %w", err)
