@@ -4,15 +4,10 @@ type KeyType uint8  // new type to define key types to be generated
 type KeyXType uint8 // new type to define key exchanges to be generated
 
 const (
+	Unknown KeyType = iota
 
-	// RSA2048 - generate an RSA 2048 bit key
-	RSA2048 KeyType = 1 + iota
-
-	// RSA4096 - generate an RSA 4096 bit key
-	RSA4096
-
-	// RSA4096 - generate an RSA 4096 bit key
-	RSA8192
+	// ED25519 - generates an ED25519 256 bit key
+	ED25519
 
 	// ECDSA256 - generate an ECDSA 256 bit key
 	ECDSA256
@@ -23,8 +18,14 @@ const (
 	// ECDSA521 - generate an ECDSA 512 bit key
 	ECDSA521
 
-	// ED25519 - generates an ED25519 256 bit key
-	ED25519
+	// RSA2048 - generate an RSA 2048 bit key
+	RSA2048
+
+	// RSA4096 - generate an RSA 4096 bit key
+	RSA4096
+
+	// RSA4096 - generate an RSA 4096 bit key
+	RSA8192
 )
 
 const (
@@ -44,31 +45,47 @@ const (
 // String - returns string name for a given key type
 func (kt KeyType) String() (str string) {
 
-	switch kt {
-	case ED25519:
-		return "ed25519"
+	ktys := []string{"unknown", "ed25519", "ecdsa256", "ecdsa384", "ecdsa521", "rsa2048", "rsa4096", "rsa8192"}
 
-	case ECDSA256:
-		return "ecdsa256"
+	ktInt := int(kt)
 
-	case ECDSA384:
-		return "ecdsa384"
-
-	case ECDSA521:
-		return "ecdsa521"
-
-	case RSA2048:
-		return "rsa2048"
-
-	case RSA4096:
-		return "rsa4096"
-
-	case RSA8192:
-		return "rsa8192"
-
-	default:
-		return "unsupported key type"
+	if ktInt > len(ktys) {
+		return ktys[0] // if an unknown key type is given, return unknown
 	}
+
+	return ktys[ktInt]
+
+	/*
+		switch kt {
+
+		case Unknown:
+			return "unknown"
+
+		case ED25519:
+			return "ed25519"
+
+		case ECDSA256:
+			return "ecdsa256"
+
+		case ECDSA384:
+			return "ecdsa384"
+
+		case ECDSA521:
+			return "ecdsa521"
+
+		case RSA2048:
+			return "rsa2048"
+
+		case RSA4096:
+			return "rsa4096"
+
+		case RSA8192:
+			return "rsa8192"
+
+		default:
+			return "unsupported key type"
+		}
+	*/
 
 }
 
