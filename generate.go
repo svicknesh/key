@@ -14,14 +14,11 @@ import (
 
 const (
 
-	// RSA2048 - generate an RSA 2048 bit key
-	RSA2048 = shared.RSA2048
+	// Unknown - unknown key type
+	Unknown = shared.Unknown
 
-	// RSA4096 - generate an RSA 4096 bit key
-	RSA4096 = shared.RSA4096
-
-	// RSA4096 - generate an RSA 4096 bit key
-	RSA8192 = shared.RSA8192
+	// ED25519 - generates an ED25519 256 bit key
+	ED25519 = shared.ED25519
 
 	// ECDSA256 - generate an ECDSA 256 bit key
 	ECDSA256 = shared.ECDSA256
@@ -32,8 +29,14 @@ const (
 	// ECDSA521 - generate an ECDSA 512 bit key
 	ECDSA521 = shared.ECDSA521
 
-	// ED25519 - generates an ED25519 256 bit key
-	ED25519 = shared.ED25519
+	// RSA2048 - generate an RSA 2048 bit key
+	RSA2048 = shared.RSA2048
+
+	// RSA4096 - generate an RSA 4096 bit key
+	RSA4096 = shared.RSA4096
+
+	// RSA4096 - generate an RSA 4096 bit key
+	RSA8192 = shared.RSA8192
 )
 
 const (

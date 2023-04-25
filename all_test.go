@@ -573,3 +573,11 @@ func TestRawKey(t *testing.T) {
 
 }
 */
+
+func TestKeyTypes(t *testing.T) {
+	fmt.Println(ECDSA256)
+	fmt.Println(CURVE25519)
+
+	fmt.Println(GetKeyType(ECDSA384.String()))
+	fmt.Println(GetKeyXType(CURVE25519.String()))
+}
