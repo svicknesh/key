@@ -2,8 +2,10 @@ package key
 
 import (
 	"encoding/base64"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"math/bits"
 	"os"
 	"testing"
 
@@ -442,17 +444,23 @@ func TestKXCurve25519Str(t *testing.T) {
 		os.Exit(1)
 	}
 	fmt.Println("A private key type: ", a.KeyType())
+	fmt.Println("A private key length: ", a.Length())
 	fmt.Println("A private key:\t", a)
-	fmt.Println("A public key:\t", a.PublicKey())
+	aPub := a.PublicKey()
+	fmt.Println("A public key:\t", aPub)
+	fmt.Println("A public key length:\t", aPub.Length())
 
 	b, err := NewKXFromStr(bStr)
 	if nil != err {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	fmt.Println("A private key type: ", b.KeyType())
+	fmt.Println("B private key type: ", b.KeyType())
+	fmt.Println("B private key length: ", b.Length())
 	fmt.Println("B private key:\t", b)
-	fmt.Println("B public key:\t", b.PublicKey())
+	bPub := b.PublicKey()
+	fmt.Println("B public key:\t", bPub)
+	fmt.Println("B public key length:\t", bPub.Length())
 
 	// generate shared key
 	sharedSecretA, err := a.SharedSecret(b.PublicKey())
@@ -484,8 +492,11 @@ func TestKXECDHStr(t *testing.T) {
 		os.Exit(1)
 	}
 	fmt.Println("A private key type: ", a.KeyType())
+	fmt.Println("A private key length: ", a.Length())
 	fmt.Println("A private key:\t", a)
-	fmt.Println("A public key:\t", a.PublicKey())
+	aPub := a.PublicKey()
+	fmt.Println("A public key:\t", aPub)
+	fmt.Println("A public key length:\t", aPub.Length())
 
 	b, err := NewKXFromStr(bStr)
 	if nil != err {
@@ -493,8 +504,11 @@ func TestKXECDHStr(t *testing.T) {
 		os.Exit(1)
 	}
 	fmt.Println("B private key type: ", b.KeyType())
+	fmt.Println("B private key length: ", b.Length())
 	fmt.Println("B private key:\t", b)
-	fmt.Println("B public key:\t", b.PublicKey())
+	bPub := b.PublicKey()
+	fmt.Println("B public key:\t", bPub)
+	fmt.Println("B public key length:\t", bPub.Length())
 
 	// generate shared key
 	sharedSecretA, err := a.SharedSecret(b.PublicKey())
@@ -533,6 +547,40 @@ func TestED25519JSON(t *testing.T) {
 
 }
 
+func TestKXCurve25519Length(t *testing.T) {
+
+	a, err := GenerateKeyExchange(CURVE25519)
+	if nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	//fmt.Println(a)
+
+	aPrivBytes, _ := a.Bytes()
+	aPubKey := a.PublicKey()
+	aPubBytes, _ := aPubKey.Bytes()
+
+	fmt.Println("A private key:\t", a.Length(), aPrivBytes)
+	fmt.Println("A public key:\t", aPubKey.Length(), aPubBytes)
+
+	aPrivLen := uint64(a.Length())
+	aPubLen := uint64(aPubKey.Length())
+
+	privBuf := make([]byte, 8)
+	binary.BigEndian.PutUint64(privBuf, aPrivLen)
+	pubvBuf := make([]byte, 8)
+	binary.BigEndian.PutUint64(pubvBuf, aPubLen)
+
+	var bytes []byte
+	bytes = append(privBuf[bits.LeadingZeros64(aPrivLen)>>3:], aPrivBytes...)
+	bytes = append(bytes, pubvBuf[bits.LeadingZeros64(aPubLen)>>3:]...)
+	bytes = append(bytes, aPubBytes...)
+
+	fmt.Println("Merged bytes: \t", bytes)
+
+}
+
+/*
 func TestKXCurve25519JSON(t *testing.T) {
 
 	aStr := "ybAlYu1qLcRoiMZKDfuFy8yUTU2TxXRpoYY4xvCjmUfq"
@@ -553,6 +601,7 @@ func TestKXCurve25519JSON(t *testing.T) {
 	}
 	fmt.Println("KX:", string(aBytes))
 }
+*/
 
 /*
 func TestRawKey(t *testing.T) {

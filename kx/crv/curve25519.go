@@ -98,3 +98,9 @@ func (kx *KX) SharedSecret(kxPub2 shared.KeyExchange) (sharedsecret []byte, err 
 	return curve25519.X25519(kx.priv[:], kxPub2.PublicKeyInstance())
 
 }
+
+// Length - returns length of the private or public key
+func (kx *KX) Length() (length int) {
+	bytes, _ := kx.Bytes()
+	return len(bytes)
+}

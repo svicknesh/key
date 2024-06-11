@@ -148,3 +148,9 @@ func (kx *KX) SharedSecret(kxPub shared.KeyExchange) (sharedsecret []byte, err e
 	return kx.priv.ECDH(pub)
 
 }
+
+// Length - returns length of the private or public key
+func (kx *KX) Length() (length int) {
+	bytes, _ := kx.Bytes()
+	return len(bytes)
+}

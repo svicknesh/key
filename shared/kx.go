@@ -10,4 +10,5 @@ type KeyExchange interface {
 	IsPrivateKey() (p bool)
 	IsPublicKey() (p bool)
 	KeyType() (kxt KeyXType)
+	Length() (length int)
 }

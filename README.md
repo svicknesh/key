@@ -154,8 +154,11 @@ if nil != err {
     os.Exit(1)
 }
 fmt.Println("A private key type: ", a.KeyType())
+fmt.Println("A private key length: ", a.Length())
 fmt.Println("A private key:\t", a)
-fmt.Println("A public key:\t", a.PublicKey())
+aPub := a.PublicKey()
+fmt.Println("A public key:\t", aPub)
+fmt.Println("A public key length:\t", aPub.Length())
 ```
 
 ### Creating shared key
