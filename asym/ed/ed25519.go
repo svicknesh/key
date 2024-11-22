@@ -14,6 +14,7 @@ type K struct {
 	priv          ed25519.PrivateKey
 	pub           ed25519.PublicKey
 	isPriv, isPub bool
+	kid           string
 }
 
 // Bytes - returns JSON encoded bytes of the key
@@ -30,7 +31,17 @@ func (k *K) Bytes() (bytes []byte, err error) {
 
 	jk, err := jwk.Import(in)
 	if nil != err {
-		return nil, fmt.Errorf("ed25519-bytes: %w", err)
+		return nil, fmt.Errorf("ed25519-bytes: error importing raw key -> %w", err)
+	}
+
+	if len(k.kid) == 0 {
+		// assign a default key ID by generating its hash
+		err = jwk.AssignKeyID(jk)
+		if nil != err {
+			return nil, fmt.Errorf("ed25519-bytes: error generating key id -> %w", err)
+		}
+	} else {
+		jk.Set(jwk.KeyIDKey, k.kid)
 	}
 
 	return json.Marshal(jk)
@@ -111,4 +122,15 @@ func (k *K) Verify(signed []byte, hashed []byte) (ok bool) {
 // MarshalJSON - marshals this Key into a JSON
 func (k K) MarshalJSON() (bytes []byte, err error) {
 	return k.Bytes()
+}
+
+// SetKeyID - sets a custom key ID `kid` for the key
+func (k *K) SetKeyID(kid string) (err error) {
+	k.kid = kid
+	return
+}
+
+// GetKeyID - returns the key ID `kid` from the key
+func (k *K) GetKeyID() (kid string) {
+	return k.kid
 }

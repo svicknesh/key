@@ -632,3 +632,22 @@ func TestKeyTypes(t *testing.T) {
 	fmt.Println(key.GetKeyType(key.ECDSA384.String()))
 	fmt.Println(key.GetKeyXType(key.CURVE25519.String()))
 }
+
+func TestSetKeyID(t *testing.T) {
+
+	rawKey, err := ec.Generate(key.ECDSA256)
+	if nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	k, err := key.NewFromRawKey(rawKey.PrivateKeyInstance())
+	if nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	k.SetKeyID("my-unique-identifier")
+	fmt.Println(k)
+
+}
