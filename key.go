@@ -23,10 +23,26 @@ type Key = shared.Key // create an alias so users don't need to understand the l
 // Key - alias of `shared.KeyExchange`
 type KeyExchange = shared.KeyExchange
 
+/*
+// use this for extracting specific information only
+type j struct {
+	KeyID string `json:"kid"`
+}
+*/
+
 // NewKeyFromBytes - returns new instance of key from given JWK bytes
 func NewKeyFromBytes(jwkBytes []byte) (k Key, err error) {
 
-	var rkey interface{}
+	/*
+		// we need to do a double json unmarshal to get the key id, if I find a better way later, I will make the necessary change
+		jkid := new(j)
+		err = json.Unmarshal(jwkBytes, jkid)
+		if err != nil {
+			return nil, fmt.Errorf("newkeyfrombytes: JWK key unmarshal error -> %w", err)
+		}
+	*/
+
+	var rkey any
 
 	err = jwk.ParseRawKey(jwkBytes, &rkey)
 	if err != nil {
@@ -41,6 +57,8 @@ func NewKeyFromBytes(jwkBytes []byte) (k Key, err error) {
 	case *rsa.PrivateKey, *rsa.PublicKey:
 		k, err = r.New(rkey)
 	}
+
+	//k.SetKeyID(jkid.KeyID) // sets the key identifier if one is given
 
 	if err != nil {
 		err = fmt.Errorf("newkeyfrombytes: %w", err)

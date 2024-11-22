@@ -13,6 +13,6 @@ type Key interface {
 	Sign(hashed []byte) (signed []byte, err error)
 	Verify(signed []byte, hashed []byte) (ok bool)
 	MarshalJSON() (bytes []byte, err error)
-	SetKeyID(kid string) (err error)
-	GetKeyID() (kid string)
+	//SetKeyID(kid string) (err error)
+	//GetKeyID() (kid string)
 }

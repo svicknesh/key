@@ -235,7 +235,7 @@ func TestED25519Str(t *testing.T) {
 
 func TestECDSAStr(t *testing.T) {
 
-	k, err := key.NewKeyFromStr("{\"crv\":\"P-256\",\"d\":\"rBaI7vXUerW0sG-WcOaH61F-Y2Nyzfg7UfkHNtdiILM\",\"kty\":\"EC\",\"x\":\"be9tCZco72RBy5z42K6sv7dOE83Or6QVwKg6FpI0kOI\",\"y\":\"cSqh32Cw9MdVF47ZdM79mOHIAysmgnwNkf33rfwZKVo\"}	")
+	k, err := key.NewKeyFromStr("{\"crv\":\"P-256\",\"d\":\"rBaI7vXUerW0sG-WcOaH61F-Y2Nyzfg7UfkHNtdiILM\",\"kty\":\"EC\",\"x\":\"be9tCZco72RBy5z42K6sv7dOE83Or6QVwKg6FpI0kOI\",\"y\":\"cSqh32Cw9MdVF47ZdM79mOHIAysmgnwNkf33rfwZKVo\",\"kid\":\"my-custom-key-identifier\"}")
 	if nil != err {
 		fmt.Println(err)
 		os.Exit(1)
@@ -248,12 +248,14 @@ func TestECDSAStr(t *testing.T) {
 		os.Exit(1)
 	}
 	//fmt.Println("JWK:", kPub)
+	//kPub.SetKeyID("pubid")
 
 	k2, err := key.NewKeyFromStr(kPub.String())
 	if nil != err {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+	//k2.SetKeyID("public-key-id")
 	fmt.Println("JWK:", k2)
 
 	s := sha3.New256()
@@ -633,6 +635,7 @@ func TestKeyTypes(t *testing.T) {
 	fmt.Println(key.GetKeyXType(key.CURVE25519.String()))
 }
 
+/*
 func TestSetKeyID(t *testing.T) {
 
 	rawKey, err := ec.Generate(key.ECDSA256)
@@ -647,7 +650,8 @@ func TestSetKeyID(t *testing.T) {
 		os.Exit(1)
 	}
 
-	k.SetKeyID("my-unique-identifier")
+	//k.SetKeyID("my-unique-identifier")
 	fmt.Println(k)
 
 }
+*/

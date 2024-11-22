@@ -21,7 +21,7 @@ Possible key types that can be generated are
 
 ```go
 // create a new instance of Key
-k, err := GenerateKey(ED25519)
+k, err := key.GenerateKey(key.ED25519)
 if nil != err {
     fmt.Println(err)
     os.Exit(1)
