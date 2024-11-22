@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/svicknesh/key/v2"
+	"github.com/svicknesh/key/v2/asym/ec"
 	"golang.org/x/crypto/sha3"
 )
 
@@ -606,7 +607,6 @@ func TestKXCurve25519JSON(t *testing.T) {
 }
 */
 
-/*
 func TestRawKey(t *testing.T) {
 
 	rawKey, err := ec.Generate(key.ECDSA256)
@@ -616,7 +616,7 @@ func TestRawKey(t *testing.T) {
 	}
 	fmt.Println(rawKey.KeyType())
 
-	k, err := NewFromRawKey(rawKey.PrivateKeyInstance())
+	k, err := key.NewFromRawKey(rawKey.PrivateKeyInstance())
 	if nil != err {
 		fmt.Println(err)
 		os.Exit(1)
@@ -624,7 +624,6 @@ func TestRawKey(t *testing.T) {
 	fmt.Println(k.KeyType())
 
 }
-*/
 
 func TestKeyTypes(t *testing.T) {
 	fmt.Println(key.ECDSA256)
