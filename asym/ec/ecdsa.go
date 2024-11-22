@@ -7,7 +7,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/lestrrat-go/jwx/v2/jwk"
+	"github.com/lestrrat-go/jwx/v3/jwk"
 	"github.com/svicknesh/key/v2/shared"
 )
 
@@ -30,7 +30,7 @@ func (k *K) Bytes() (bytes []byte, err error) {
 		return nil, fmt.Errorf("ecdsa-bytes: neither public nor private key found")
 	}
 
-	jk, err := jwk.FromRaw(in)
+	jk, err := jwk.Import(in)
 	if nil != err {
 		return nil, fmt.Errorf("ecdsa-bytes: %w", err)
 	}

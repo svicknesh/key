@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/lestrrat-go/jwx/v2/jwk"
+	"github.com/lestrrat-go/jwx/v3/jwk"
 	"github.com/svicknesh/key/v2/asym/ec"
 	"github.com/svicknesh/key/v2/asym/ed"
 	"github.com/svicknesh/key/v2/asym/r"
@@ -57,7 +57,8 @@ func NewKeyFromStr(jwkStr string) (k Key, err error) {
 // NewFromRawKey - returns new instance of key from given raw key
 func NewFromRawKey(rawKey interface{}) (k Key, err error) {
 
-	jk, err := jwk.FromRaw(rawKey)
+	// the reason we take this approach is `NewKeyFromBytes` already does the key type checking, its not the best move to repeat that code here
+	jk, err := jwk.Import(rawKey)
 	if nil != err {
 		return nil, fmt.Errorf("newfromrawkey: error converting from raw -> %w", err)
 	}
