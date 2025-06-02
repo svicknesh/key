@@ -184,6 +184,22 @@ fmt.Println("B shared secret with A:\t", base64.StdEncoding.EncodeToString(share
 
 ```
 
+### Getting key type from its name
+
+```go
+// use `key.GetKeyType` to get the key type instance given its name 
+fmt.Println(key.GetKeyType(key.ECDSA384.String()))
+
+```
+
+### Getting key exchange type from its name
+
+```go
+// use `key.GetKeyXType` to get the key type instance given its name 
+fmt.Println(key.GetKeyXType(key.CURVE25519.String()))
+
+```
+
 ### Complete Code
 
 ```go

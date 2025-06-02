@@ -14,9 +14,6 @@ import (
 
 const (
 
-	// Unknown - unknown key type
-	Unknown = shared.Unknown
-
 	// ED25519 - generates an ED25519 256 bit key
 	ED25519 = shared.ED25519
 

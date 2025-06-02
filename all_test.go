@@ -11,6 +11,7 @@ import (
 
 	"github.com/svicknesh/key/v2"
 	"github.com/svicknesh/key/v2/asym/ec"
+	"github.com/svicknesh/key/v2/shared"
 	"golang.org/x/crypto/sha3"
 )
 
@@ -627,12 +628,46 @@ func TestRawKey(t *testing.T) {
 
 }
 
-func TestKeyTypes(t *testing.T) {
+func TestKeyTypeParse(t *testing.T) {
 	fmt.Println(key.ECDSA256)
 	fmt.Println(key.CURVE25519)
 
 	fmt.Println(key.GetKeyType(key.ECDSA384.String()))
 	fmt.Println(key.GetKeyXType(key.CURVE25519.String()))
+}
+
+func TestKeyTypeJSON(t *testing.T) {
+
+	bytes, err := json.Marshal(key.ED25519)
+	if nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fmt.Println(string(bytes))
+
+	kt := new(shared.KeyType)
+	err = json.Unmarshal(bytes, kt)
+	if nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fmt.Println(kt)
+
+	bytes, err = json.Marshal(key.CURVE25519)
+	if nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fmt.Println(string(bytes))
+
+	kx := new(shared.KeyXType)
+	err = json.Unmarshal(bytes, kx)
+	if nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fmt.Println(kx)
+
 }
 
 /*
