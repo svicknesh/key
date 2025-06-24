@@ -57,7 +57,9 @@ func (k *K) String() (str string) {
 
 // PublicKey - returns instance of public key of type Key extracted from private key
 func (k *K) PublicKey() (kPub shared.Key, err error) {
-	if !k.isPriv {
+	if k.isPub {
+		return k, nil // if this is already a public key, return it immediately
+	} else if !k.isPriv {
 		return nil, errors.New("ecdsa-publickey: no private key exists to extract public key")
 	}
 
@@ -108,7 +110,7 @@ func (k *K) Sign(hashed []byte) (signed []byte, err error) {
 
 	signed, err = ecdsa.SignASN1(rand.Reader, k.priv, hashed)
 	if nil != err {
-		err = fmt.Errorf("ecdsa-verify: ECDSA signature generation failed -> %w", err)
+		err = fmt.Errorf("ecdsa-sign: ECDSA signature generation failed -> %w", err)
 	}
 
 	return

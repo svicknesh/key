@@ -55,7 +55,9 @@ func (k *K) String() (str string) {
 
 // PublicKey - returns instance of public key of type Key extracted from private key
 func (k *K) PublicKey() (kPub shared.Key, err error) {
-	if !k.isPriv {
+	if k.isPub {
+		return k, nil // if this is already a public key, return it immediately
+	} else if !k.isPriv {
 		return nil, errors.New("ed25519-publickey: no private key exists to extract public key")
 	}
 
