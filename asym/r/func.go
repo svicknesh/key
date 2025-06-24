@@ -34,7 +34,7 @@ func Generate(kt shared.KeyType) (k *K, err error) {
 }
 
 // New - converts a raw key interface into instance of RSA
-func New(rkey interface{}) (k *K, err error) {
+func New(rkey any) (k *K, err error) {
 
 	k = new(K)
 

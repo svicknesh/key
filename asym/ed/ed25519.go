@@ -20,7 +20,7 @@ type K struct {
 // Bytes - returns JSON encoded bytes of the key
 func (k *K) Bytes() (bytes []byte, err error) {
 
-	var in interface{}
+	var in any
 	if k.isPriv {
 		in = k.priv
 	} else if k.isPub {
@@ -63,7 +63,7 @@ func (k *K) PublicKey() (kPub shared.Key, err error) {
 }
 
 // PrivateKeyInstance - returns actual instance of private key of type
-func (k *K) PrivateKeyInstance() (privkey interface{}) {
+func (k *K) PrivateKeyInstance() (privkey any) {
 	if !k.isPriv {
 		//return nil, errors.New("ed25519-privatekeyinstance: no private key exists")
 		return nil
@@ -73,7 +73,7 @@ func (k *K) PrivateKeyInstance() (privkey interface{}) {
 }
 
 // PublicKeyInstance - returns actual instance of public key of type
-func (k *K) PublicKeyInstance() (pubkey interface{}) {
+func (k *K) PublicKeyInstance() (pubkey any) {
 	if k.isPub {
 		return k.pub
 	} else if k.isPriv {

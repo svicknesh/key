@@ -73,7 +73,7 @@ func NewKeyFromStr(jwkStr string) (k Key, err error) {
 }
 
 // NewFromRawKey - returns new instance of key from given raw key
-func NewFromRawKey(rawKey interface{}) (k Key, err error) {
+func NewFromRawKey(rawKey any) (k Key, err error) {
 
 	// the reason we take this approach is `NewKeyFromBytes` already does the key type checking, its not the best move to repeat that code here
 	jk, err := jwk.Import(rawKey)
