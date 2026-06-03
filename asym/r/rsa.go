@@ -110,7 +110,8 @@ func (k *K) Sign(hashed []byte) (signed []byte, err error) {
 	}
 
 	//signed, err = rsa.SignPKCS1v15(rand.Reader, k.priv, crypto.SHA256, hashed)
-	signed, err = rsa.SignPSS(rand.Reader, k.priv, crypto.SHA256, hashed, nil)
+	pssOpts := &rsa.PSSOptions{SaltLength: rsa.PSSSaltLengthEqualsHash, Hash: crypto.SHA256}
+	signed, err = rsa.SignPSS(rand.Reader, k.priv, crypto.SHA256, hashed, pssOpts)
 	if nil != err {
 		err = fmt.Errorf("rsa-verify: RSA signature generation failed -> %w", err)
 	}
@@ -126,7 +127,8 @@ func (k *K) Verify(signed []byte, hashed []byte) (ok bool) {
 	}
 
 	//err = rsa.VerifyPKCS1v15(k.pub, crypto.SHA256, hashed, signed)
-	err := rsa.VerifyPSS(k.pub, crypto.SHA256, hashed, signed, nil)
+	pssOpts := &rsa.PSSOptions{SaltLength: rsa.PSSSaltLengthEqualsHash, Hash: crypto.SHA256}
+	err := rsa.VerifyPSS(k.pub, crypto.SHA256, hashed, signed, pssOpts)
 	if nil == err {
 		ok = true // if there are no errors from VerifyPSS, all is good with the verification
 	}

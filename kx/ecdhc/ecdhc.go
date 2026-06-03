@@ -129,6 +129,10 @@ func (kx *KX) SharedSecret(kxPub shared.KeyExchange) (sharedsecret []byte, err e
 		return nil, errors.New("ecdh-sharedsecret: no public key exists in paramameter for shared secret generation")
 	}
 
+	if kx.kxt != kxPub.KeyType() {
+		return nil, fmt.Errorf("ecdh-sharedsecret: curve mismatch: local=%s, peer=%s", kx.kxt, kxPub.KeyType())
+	}
+
 	pub := new(ecdh.PublicKey)
 	switch kxPub.KeyType() {
 	case shared.ECDH256:

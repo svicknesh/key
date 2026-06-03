@@ -87,7 +87,7 @@ func (kt *KeyType) UnmarshalJSON(data []byte) error {
 	// Remove surrounding quotes and unescape any escaped characters
 	strVal, err := strconv.Unquote(string(data))
 	if err != nil {
-		return fmt.Errorf("KeyType.UnmarshalJSON: invalid JSON string %s → %w", string(data), err)
+		return fmt.Errorf("KeyType.UnmarshalJSON: invalid JSON string (len=%d) → %w", len(data), err)
 	}
 
 	*kt = GetKeyType(strVal)
@@ -111,7 +111,7 @@ func (kx KeyXType) MarshalJSON() ([]byte, error) {
 func (kx *KeyXType) UnmarshalJSON(data []byte) error {
 	strVal, err := strconv.Unquote(string(data))
 	if err != nil {
-		return fmt.Errorf("KeyXType.UnmarshalJSON: invalid JSON string %s → %w", string(data), err)
+		return fmt.Errorf("KeyXType.UnmarshalJSON: invalid JSON string (len=%d) → %w", len(data), err)
 	}
 
 	*kx = GetKeyXType(strVal)

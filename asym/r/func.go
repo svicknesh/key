@@ -59,6 +59,8 @@ func New(rkey any) (k *K, err error) {
 		k.kt = shared.RSA4096
 	case 1024: // 8192 bit RSA key
 		k.kt = shared.RSA8192
+	default:
+		return nil, fmt.Errorf("rsa-new: unsupported key size %d bytes", size)
 	}
 
 	return k, nil

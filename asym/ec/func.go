@@ -61,6 +61,8 @@ func New(rkey any) (k *K, err error) {
 		k.kt = shared.ECDSA384
 	case "P-521":
 		k.kt = shared.ECDSA521
+	default:
+		return nil, fmt.Errorf("ecdsa-new: unsupported curve %s", crv)
 	}
 
 	return k, nil

@@ -25,6 +25,10 @@ func Generate() (kx *KX, err error) {
 // New - returns new instnace of key exchange from given bytes
 func New(kxBytes []byte) (kx *KX, err error) {
 
+	if len(kxBytes) < 2 {
+		return nil, fmt.Errorf("curve25519-new: input too short, need at least 2 bytes")
+	}
+
 	kx = new(KX)
 
 	identifier := kxBytes[0] // first byte indicates the type of key exchange
@@ -32,11 +36,19 @@ func New(kxBytes []byte) (kx *KX, err error) {
 
 	switch identifier {
 	case TypeCrvPriv:
+		if len(kxB) != 32 {
+			return nil, fmt.Errorf("curve25519-new: invalid private key length %d, expected 32", len(kxB))
+		}
 		kx.priv = [32]byte(kxB)
 		kx.isPriv = true
 	case TypeCrvPub:
+		if len(kxB) != 32 {
+			return nil, fmt.Errorf("curve25519-new: invalid public key length %d, expected 32", len(kxB))
+		}
 		kx.pub = [32]byte(kxB)
 		kx.isPub = true
+	default:
+		return nil, fmt.Errorf("curve25519-new: unknown key type identifier %d", identifier)
 	}
 
 	return

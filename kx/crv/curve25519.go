@@ -53,7 +53,8 @@ func (kx *KX) PublicKey() (kxPub shared.KeyExchange) {
 	}
 
 	pub := new(KX)
-	curve25519.ScalarBaseMult(&pub.pub, &kx.priv)
+	pubBytes, _ := curve25519.X25519(kx.priv[:], curve25519.Basepoint)
+	copy(pub.pub[:], pubBytes)
 	pub.isPub = true
 
 	return pub

@@ -36,6 +36,10 @@ func Generate(kxt shared.KeyXType) (kx *KX, err error) {
 // New - returns new instnace of key exchange from given bytes
 func New(kxBytes []byte) (kx *KX, err error) {
 
+	if len(kxBytes) < 2 {
+		return nil, fmt.Errorf("ecdh-new: input too short, need at least 2 bytes")
+	}
+
 	kx = new(KX)
 
 	identifier := kxBytes[0] // first byte indicates the type of key exchange
@@ -45,33 +49,53 @@ func New(kxBytes []byte) (kx *KX, err error) {
 	case TypeECDHPriv256:
 		kx.kxt = shared.ECDH256
 		kx.priv, err = ecdh.P256().NewPrivateKey(kxB)
+		if err != nil {
+			return nil, fmt.Errorf("ecdh-new: %w", err)
+		}
 		kx.isPriv = true
 
 	case TypeECDHPub256:
 		kx.kxt = shared.ECDH256
 		kx.pub, err = ecdh.P256().NewPublicKey(kxB)
+		if err != nil {
+			return nil, fmt.Errorf("ecdh-new: %w", err)
+		}
 		kx.isPub = true
 
 	case TypeECDHPriv384:
 		kx.kxt = shared.ECDH384
 		kx.priv, err = ecdh.P384().NewPrivateKey(kxB)
+		if err != nil {
+			return nil, fmt.Errorf("ecdh-new: %w", err)
+		}
 		kx.isPriv = true
 
 	case TypeECDHPub384:
 		kx.kxt = shared.ECDH384
 		kx.pub, err = ecdh.P384().NewPublicKey(kxB)
+		if err != nil {
+			return nil, fmt.Errorf("ecdh-new: %w", err)
+		}
 		kx.isPub = true
 
 	case TypeECDHPriv521:
 		kx.kxt = shared.ECDH521
 		kx.priv, err = ecdh.P521().NewPrivateKey(kxB)
+		if err != nil {
+			return nil, fmt.Errorf("ecdh-new: %w", err)
+		}
 		kx.isPriv = true
 
 	case TypeECDHPub521:
 		kx.kxt = shared.ECDH521
 		kx.pub, err = ecdh.P521().NewPublicKey(kxB)
+		if err != nil {
+			return nil, fmt.Errorf("ecdh-new: %w", err)
+		}
 		kx.isPub = true
 
+	default:
+		return nil, fmt.Errorf("ecdh-new: unknown key type identifier %d", identifier)
 	}
 
 	return

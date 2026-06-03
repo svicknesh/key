@@ -6,6 +6,7 @@ import (
 	"crypto/rsa"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/lestrrat-go/jwx/v3/jwk"
@@ -96,6 +97,10 @@ func NewFromRawKey(rawKey any) (k Key, err error) {
 
 // NewKXFromBytes - returns new instance of key exchange from given bytes
 func NewKXFromBytes(kxBytes []byte) (kx KeyExchange, err error) {
+
+	if len(kxBytes) == 0 {
+		return nil, errors.New("newkxfrombytes: empty input")
+	}
 
 	// first byte indicates the type of key exchange
 	switch kxBytes[0] {

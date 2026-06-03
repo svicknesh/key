@@ -4,7 +4,7 @@ go 1.23.4
 
 require (
 	github.com/lestrrat-go/jwx/v3 v3.0.1
-	github.com/svicknesh/enum2str v1.0.1
+	github.com/svicknesh/enum2str v1.0.2
 	golang.org/x/crypto v0.38.0
 )
 

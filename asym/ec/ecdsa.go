@@ -108,6 +108,10 @@ func (k *K) Sign(hashed []byte) (signed []byte, err error) {
 		return nil, fmt.Errorf("ecdsa-sign: private key does not exist for signing data")
 	}
 
+	if len(hashed) < 32 {
+		return nil, fmt.Errorf("ecdsa-sign: hashed input too short (%d bytes)", len(hashed))
+	}
+
 	signed, err = ecdsa.SignASN1(rand.Reader, k.priv, hashed)
 	if nil != err {
 		err = fmt.Errorf("ecdsa-sign: ECDSA signature generation failed -> %w", err)
