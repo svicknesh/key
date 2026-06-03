@@ -9,7 +9,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/lestrrat-go/jwx/v3/jwk"
+	"github.com/lestrrat-go/jwx/v4/jwk"
 	"github.com/svicknesh/key/v2/asym/ec"
 	"github.com/svicknesh/key/v2/asym/ed"
 	"github.com/svicknesh/key/v2/asym/r"
@@ -57,6 +57,8 @@ func NewKeyFromBytes(jwkBytes []byte) (k Key, err error) {
 		k, err = ec.New(rkey)
 	case *rsa.PrivateKey, *rsa.PublicKey:
 		k, err = r.New(rkey)
+	default:
+		err = fmt.Errorf("newkeyfrombytes: unsupported JWK key type %T", rkey)
 	}
 
 	//k.SetKeyID(jkid.KeyID) // sets the key identifier if one is given
@@ -77,7 +79,7 @@ func NewKeyFromStr(jwkStr string) (k Key, err error) {
 func NewFromRawKey(rawKey any) (k Key, err error) {
 
 	// the reason we take this approach is `NewKeyFromBytes` already does the key type checking, its not the best move to repeat that code here
-	jk, err := jwk.Import(rawKey)
+	jk, err := jwk.Import[jwk.Key](rawKey)
 	if nil != err {
 		return nil, fmt.Errorf("newfromrawkey: error converting from raw -> %w", err)
 	}

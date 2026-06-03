@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/lestrrat-go/jwx/v3/jwk"
+	"github.com/lestrrat-go/jwx/v4/jwk"
 	"github.com/svicknesh/key/v2/shared"
 )
 
@@ -29,7 +29,7 @@ func (k *K) Bytes() (bytes []byte, err error) {
 		return nil, fmt.Errorf("ed25519-bytes: neither public nor private key found")
 	}
 
-	jk, err := jwk.Import(in)
+	jk, err := jwk.Import[jwk.Key](in)
 	if nil != err {
 		return nil, fmt.Errorf("ed25519-bytes: error importing raw key -> %w", err)
 	}

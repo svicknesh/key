@@ -48,6 +48,9 @@ func (kx *KX) String() (str string) {
 
 // PublicKey - returns instance of public key of type Key Exchange
 func (kx *KX) PublicKey() (kxPub shared.KeyExchange) {
+	if kx.isPub {
+		return kx
+	}
 	if !kx.isPriv {
 		return new(KX)
 	}
