@@ -9,7 +9,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/lestrrat-go/jwx/v4/jwk"
+	"github.com/lestrrat-go/jwx/v3/jwk"
 	"github.com/svicknesh/key/v2/asym/ec"
 	"github.com/svicknesh/key/v2/asym/ed"
 	"github.com/svicknesh/key/v2/asym/r"
@@ -79,7 +79,7 @@ func NewKeyFromStr(jwkStr string) (k Key, err error) {
 func NewFromRawKey(rawKey any) (k Key, err error) {
 
 	// the reason we take this approach is `NewKeyFromBytes` already does the key type checking, its not the best move to repeat that code here
-	jk, err := jwk.Import[jwk.Key](rawKey)
+	jk, err := jwk.Import(rawKey)
 	if nil != err {
 		return nil, fmt.Errorf("newfromrawkey: error converting from raw -> %w", err)
 	}
